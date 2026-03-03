@@ -24,25 +24,19 @@ jobs:
 
     - name: Build with CMake
       run: |
-        Write-Host "=== Debug: Current directory ==="
-        Get-Location
-        Write-Host "=== Debug: Listing cpp_launcher ==="
-        Get-ChildItem cpp_launcher
-        Write-Host "=== Debug: Creating directories ==="
-        New-Item -ItemType Directory -Path "cpp_launcher/build" -Force
-        New-Item -ItemType Directory -Path "cpp_launcher/dist" -Force
-        Write-Host "=== Debug: Listing cpp_launcher after mkdir ==="
-        Get-ChildItem cpp_launcher
-        Write-Host "=== Debug: Running CMake ==="
+        $workspace = Get-Location
+        Write-Host "=== Workspace: $workspace ==="
+        
+        New-Item -ItemType Directory -Path "cpp_launcher/build" -Force | Out-Null
+        New-Item -ItemType Directory -Path "cpp_launcher/dist" -Force | Out-Null
+        
         Set-Location cpp_launcher/build
         cmake .. -A x64
         cmake --build . --config Release
-        Write-Host "=== Debug: Listing build/Release ==="
-        Get-ChildItem Release
-        Write-Host "=== Debug: Copying exe ==="
-        Copy-Item Release\OpenClawLauncher.exe ..\dist\
-        Write-Host "=== Debug: Listing dist ==="
-        Get-ChildItem ..\dist
+        
+        Write-Host "=== Copying exe to dist ==="
+        Copy-Item Release\OpenClawLauncher.exe "$workspace\cpp_launcher\dist\"
+        Get-ChildItem "$workspace\cpp_launcher\dist"
 
     - name: Install Inno Setup
       run: |
