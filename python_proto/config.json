@@ -1,0 +1,21 @@
+{
+    "openclaw_path": "C:\\Users\\IxorStorm\\AppData\\Roaming\\npm\\openclaw.CMD",
+    "openclaw_config_path": "C:\\Users\\IxorStorm\\.openclaw\\openclaw.json",
+    "gateway_port": 18789,
+    "auto_detect": true,
+    "openclaw_command_args": "gateway start",
+    "ready_pattern": "listening|ready|Gateway started",
+    "health_check_url": "/",
+    "health_check_timeout": 5,
+    "health_check_keyword": "openclaw",
+    "max_start_attempts": 2,
+    "retry_delay": 3,
+    "terminal_font": "Consolas",
+    "terminal_font_size": 11,
+    "log_max_lines": 10000,
+    "auto_start": false,
+    "auto_minimize": false,
+    "appearance_mode": "System",
+    "window_hotkey": "alt+,",
+    "windows_startup": true
+}

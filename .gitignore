@@ -1,0 +1,35 @@
+# Build directories
+build/
+dist/
+release/
+cpp_launcher/dist/
+cpp_launcher/release/
+cpp_launcher/debug.log
+cpp_launcher/layout_debug.log
+
+# IDE
+.vs/
+.vscode/
+*.user
+*.suo
+*.sln
+*.vcxproj*
+
+# Python
+__pycache__/
+*.pyc
+*.pyd
+*.spec
+*.egg-info/
+.eggs/
+
+# CMake
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+
+# Temp files
+*.tmp
+*.temp
+*.log
