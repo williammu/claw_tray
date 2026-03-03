@@ -3,7 +3,7 @@
 #endif
 #define MyAppName "OpenClaw Launcher"
 #define MyAppPublisher "OpenClaw"
-#define MyAppURL "https://github.com/openclaw/claw_tray"
+#define MyAppURL "https://github.com/williammu/claw_tray"
 #define MyAppExeName "OpenClawLauncher.exe"
 
 [Setup]
@@ -18,7 +18,7 @@ AppUpdatesURL={#MyAppURL}
 DefaultDirName={autopf}\{#MyAppName}
 DefaultGroupName={#MyAppName}
 AllowNoIcons=yes
-LicenseFile=..\LICENSE
+LicenseFile=..\..\LICENSE
 InfoBeforeFile=..\README.md
 OutputDir=..\release
 OutputBaseFilename=OpenClawLauncher-Setup-{#MyAppVersion}
@@ -43,9 +43,9 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 Name: "quicklaunchicon"; Description: "{cm:CreateQuickLaunchIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked; OnlyBelowVersion: 6.1; Check: not IsAdminInstallMode
 
 [Files]
-Source: "..\dist\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\build\Release\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\README.md"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\LICENSE"; DestDir: "{app}"; Flags: ignoreversion; Check: FileExists(ExpandConstant('..\LICENSE'))
+Source: "..\..\LICENSE"; DestDir: "{app}"; Flags: ignoreversion; Check: FileExists(ExpandConstant('..\..\LICENSE'))
 
 [Icons]
 Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
