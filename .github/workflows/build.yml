@@ -54,7 +54,8 @@ jobs:
         7z a ../../release/OpenClawLauncher-Portable-${{ steps.version.outputs.VERSION }}.zip OpenClawLauncher.exe
         cd ../..
         iscc installer/setup.iss /DMyAppVersion=${{ steps.version.outputs.VERSION }}
-        copy installer\Output\*.exe release\
+        Write-Host "=== Release files ==="
+        Get-ChildItem release
 
     - name: Upload Artifacts
       uses: actions/upload-artifact@v4
