@@ -26,6 +26,7 @@ jobs:
       run: |
         cd cpp_launcher
         mkdir build
+        mkdir dist
         cd build
         cmake .. -A x64
         cmake --build . --config Release
