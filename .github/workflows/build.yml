@@ -24,19 +24,13 @@ jobs:
 
     - name: Build with CMake
       run: |
-        $workspace = Get-Location
-        Write-Host "=== Workspace: $workspace ==="
-        
         New-Item -ItemType Directory -Path "cpp_launcher/build" -Force | Out-Null
-        New-Item -ItemType Directory -Path "cpp_launcher/dist" -Force | Out-Null
-        
         Set-Location cpp_launcher/build
         cmake .. -A x64
         cmake --build . --config Release
         
-        Write-Host "=== Copying exe to dist ==="
-        Copy-Item Release\OpenClawLauncher.exe "$workspace\cpp_launcher\dist\"
-        Get-ChildItem "$workspace\cpp_launcher\dist"
+        Write-Host "=== Build output ==="
+        Get-ChildItem Release
 
     - name: Install Inno Setup
       run: |
@@ -56,9 +50,9 @@ jobs:
       run: |
         cd cpp_launcher
         mkdir -p release
-        cd dist
-        7z a ../release/OpenClawLauncher-Portable-${{ steps.version.outputs.VERSION }}.zip OpenClawLauncher.exe
-        cd ..
+        cd build/Release
+        7z a ../../release/OpenClawLauncher-Portable-${{ steps.version.outputs.VERSION }}.zip OpenClawLauncher.exe
+        cd ../..
         iscc installer/setup.iss /DMyAppVersion=${{ steps.version.outputs.VERSION }}
         copy installer\Output\*.exe release\
 
