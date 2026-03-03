@@ -7,6 +7,7 @@
 #include "TrayIcon.h"
 #include "HotkeyManager.h"
 #include "StartupManager.h"
+#include "I18N.h"
 #include <richedit.h>
 
 namespace Launcher {
@@ -518,6 +519,7 @@ private:
     HBRUSH hBlackBrush_ = NULL;
     HBRUSH hDarkBrush_ = NULL;
     HBRUSH hFrameBrush_ = NULL;
+    HBRUSH hStatusBrush_ = NULL;
     HPEN hGreenPen_ = NULL;
     HPEN hDarkGreenPen_ = NULL;
     HPEN hBorderPen_ = NULL;
@@ -529,9 +531,11 @@ private:
     }
 
     MainWindow() {
+        I18N::Instance().Initialize();
         hBlackBrush_ = CreateSolidBrush(RGB(12, 12, 12));
         hDarkBrush_ = CreateSolidBrush(RGB(10, 10, 10));
         hFrameBrush_ = CreateSolidBrush(RGB(8, 8, 8));
+        hStatusBrush_ = CreateSolidBrush(RGB(12, 12, 12));
         hGreenPen_ = CreatePen(PS_SOLID, 1, RGB(0, 143, 17));
         hDarkGreenPen_ = CreatePen(PS_SOLID, 1, RGB(0, 51, 0));
         hBorderPen_ = CreatePen(PS_SOLID, 1, RGB(0, 80, 0));
@@ -546,6 +550,7 @@ private:
         if (hBlackBrush_) DeleteObject(hBlackBrush_);
         if (hDarkBrush_) DeleteObject(hDarkBrush_);
         if (hFrameBrush_) DeleteObject(hFrameBrush_);
+        if (hStatusBrush_) DeleteObject(hStatusBrush_);
         if (hGreenPen_) DeleteObject(hGreenPen_);
         if (hDarkGreenPen_) DeleteObject(hDarkGreenPen_);
         if (hBorderPen_) DeleteObject(hBorderPen_);
@@ -627,30 +632,30 @@ private:
         int btnH = Scale(30);
         int btnX = Scale(15);
         
-        hStartBtn_ = CreateThemedButton(btnX, btnY, btnW, btnH, "[启动]", ID_TRAY_START);
+        hStartBtn_ = CreateThemedButton(btnX, btnY, btnW, btnH, TR("btn_start").c_str(), ID_TRAY_START);
         btnX += btnW + Scale(8);
         
-        hStopBtn_ = CreateThemedButton(btnX, btnY, btnW, btnH, "[停止]", ID_TRAY_STOP);
+        hStopBtn_ = CreateThemedButton(btnX, btnY, btnW, btnH, TR("btn_stop").c_str(), ID_TRAY_STOP);
         EnableWindow(hStopBtn_, FALSE);
         btnX += btnW + Scale(8);
         
-        hRestartBtn_ = CreateThemedButton(btnX, btnY, btnW, btnH, "[重启]", ID_TRAY_RESTART);
+        hRestartBtn_ = CreateThemedButton(btnX, btnY, btnW, btnH, TR("btn_restart").c_str(), ID_TRAY_RESTART);
         EnableWindow(hRestartBtn_, FALSE);
         btnX += btnW + Scale(8);
         
-        hCheckBtn_ = CreateThemedButton(btnX, btnY, btnW, btnH, "[检查]", 1007);
+        hCheckBtn_ = CreateThemedButton(btnX, btnY, btnW, btnH, TR("btn_check").c_str(), 1007);
         
-        hStatus_ = CreateWindowExA(0, "STATIC", "[离线]",
+        hStatus_ = CreateWindowExA(0, "STATIC", TR("status_offline").c_str(),
             WS_CHILD | WS_VISIBLE | SS_CENTER,
             (width - Scale(120)) / 2, btnY + Scale(4), Scale(120), Scale(24), hWnd_, NULL, hInstance_, NULL);
         SendMessage(hStatus_, WM_SETFONT, (WPARAM)hStatusFont_, TRUE);
         SetWindowLongPtr(hStatus_, GWLP_USERDATA, 4);
         
-        hClearBtn_ = CreateThemedButton(width - Scale(95), btnY, btnW, btnH, "[清空]", ID_TRAY_CLEAR);
+        hClearBtn_ = CreateThemedButton(width - Scale(95), btnY, btnW, btnH, TR("btn_clear").c_str(), ID_TRAY_CLEAR);
         
-        hHotkeyBtn_ = CreateThemedButton(width - Scale(183), btnY, btnW, btnH, "[热键]", 1009);
+        hHotkeyBtn_ = CreateThemedButton(width - Scale(183), btnY, btnW, btnH, TR("btn_set_hotkey").c_str(), 1009);
         
-        hStartupCheckbox_ = CreateWindowExA(0, "BUTTON", "开机自启",
+        hStartupCheckbox_ = CreateWindowExA(0, "BUTTON", TR("btn_startup").c_str(),
             WS_CHILD | WS_VISIBLE | BS_AUTOCHECKBOX | BS_OWNERDRAW | WS_TABSTOP,
             width - Scale(270), btnY + Scale(6), Scale(80), Scale(22), hWnd_, (HMENU)1008, hInstance_, NULL);
         SendMessage(hStartupCheckbox_, WM_SETFONT, (WPARAM)hFont_, TRUE);
@@ -860,20 +865,20 @@ private:
     void UpdateUI() {
         switch (currentState_) {
             case State::STOPPED:
-                SetWindowTextA(hStatus_, "[离线]");
+                SetWindowTextA(hStatus_, TR("status_offline").c_str());
                 EnableWindow(hStartBtn_, TRUE);
                 EnableWindow(hStopBtn_, FALSE);
                 EnableWindow(hRestartBtn_, FALSE);
                 SetWindowTextA(hInfoPid_, "> PID: -");
                 break;
             case State::STARTING:
-                SetWindowTextA(hStatus_, "[启动中...]");
+                SetWindowTextA(hStatus_, TR("status_starting").c_str());
                 EnableWindow(hStartBtn_, FALSE);
                 EnableWindow(hStopBtn_, TRUE);
                 EnableWindow(hRestartBtn_, FALSE);
                 break;
             case State::RUNNING:
-                SetWindowTextA(hStatus_, "[在线]");
+                SetWindowTextA(hStatus_, TR("status_online").c_str());
                 EnableWindow(hStartBtn_, FALSE);
                 EnableWindow(hStopBtn_, TRUE);
                 EnableWindow(hRestartBtn_, TRUE);
@@ -890,6 +895,19 @@ private:
                 }).detach();
                 break;
         }
+    }
+
+    void RefreshAllText() {
+        SetWindowTextA(hWnd_, TR("app_title").c_str());
+        SetWindowTextA(hStartBtn_, TR("btn_start").c_str());
+        SetWindowTextA(hStopBtn_, TR("btn_stop").c_str());
+        SetWindowTextA(hRestartBtn_, TR("btn_restart").c_str());
+        SetWindowTextA(hCheckBtn_, TR("btn_check").c_str());
+        SetWindowTextA(hHotkeyBtn_, TR("btn_set_hotkey").c_str());
+        SetWindowTextA(hClearBtn_, TR("btn_clear").c_str());
+        SetWindowTextA(hStartupCheckbox_, TR("btn_startup").c_str());
+        UpdateUI();
+        TrayIcon::Instance().SetState(currentState_);
     }
 
     void ClearTerminal() {
@@ -1047,7 +1065,7 @@ private:
     void ConfigureHotkey() {
         if (capturingHotkey_) {
             capturingHotkey_ = false;
-            SetWindowTextA(hHotkeyBtn_, "[热键]");
+            SetWindowTextA(hHotkeyBtn_, TR("btn_set_hotkey").c_str());
             ReleaseCapture();
             LogToTerminal("Hotkey capture cancelled");
             return;
@@ -1491,10 +1509,16 @@ private:
                 
                 if (userData == 1) {
                     SetTextColor(hdc, RGB(0, 255, 0));
+                    SetBkColor(hdc, RGB(8, 8, 8));
+                    return (LRESULT)hFrameBrush_;
                 } else if (userData == 2) {
                     SetTextColor(hdc, RGB(0, 170, 0));
+                    SetBkColor(hdc, RGB(8, 8, 8));
+                    return (LRESULT)hFrameBrush_;
                 } else if (userData == 3) {
                     SetTextColor(hdc, RGB(57, 255, 20));
+                    SetBkColor(hdc, RGB(8, 8, 8));
+                    return (LRESULT)hFrameBrush_;
                 } else if (userData == 4) {
                     if (currentState_ == State::RUNNING) {
                         SetTextColor(hdc, RGB(0, 255, 0));
@@ -1503,12 +1527,13 @@ private:
                     } else {
                         SetTextColor(hdc, RGB(255, 51, 51));
                     }
+                    SetBkColor(hdc, RGB(12, 12, 12));
+                    return (LRESULT)hStatusBrush_;
                 } else {
                     SetTextColor(hdc, RGB(0, 255, 0));
+                    SetBkColor(hdc, RGB(8, 8, 8));
+                    return (LRESULT)hFrameBrush_;
                 }
-                
-                SetBkColor(hdc, RGB(8, 8, 8));
-                return (LRESULT)hFrameBrush_;
             }
             
             case WM_CTLCOLORBTN: {
@@ -1568,6 +1593,14 @@ private:
                     case ID_TRAY_EXIT:
                         ExitApp();
                         break;
+                    case ID_TRAY_LANG_ZH:
+                        I18N::Instance().SetLanguage(Language::CHINESE);
+                        RefreshAllText();
+                        break;
+                    case ID_TRAY_LANG_EN:
+                        I18N::Instance().SetLanguage(Language::ENGLISH);
+                        RefreshAllText();
+                        break;
                     case 1007:
                         ManualHealthCheck();
                         break;
@@ -1591,7 +1624,7 @@ private:
                 if (capturingHotkey_) {
                     if (wParam == VK_ESCAPE) {
                         capturingHotkey_ = false;
-                        SetWindowTextA(hHotkeyBtn_, "[热键]");
+                        SetWindowTextA(hHotkeyBtn_, TR("btn_set_hotkey").c_str());
                         ReleaseCapture();
                         LogToTerminal("Hotkey capture cancelled");
                         return 0;
@@ -1737,7 +1770,7 @@ private:
                     }
                     
                     capturingHotkey_ = false;
-                    SetWindowTextA(hHotkeyBtn_, "[热键]");
+                    SetWindowTextA(hHotkeyBtn_, TR("btn_set_hotkey").c_str());
                     ReleaseCapture();
                     
                     if (keyName[0]) {

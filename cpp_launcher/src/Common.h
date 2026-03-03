@@ -23,6 +23,9 @@ constexpr int ID_TRAY_CLEAR = 1004;
 constexpr int ID_TRAY_EXIT = 1005;
 constexpr int ID_TRAY_START = 1006;
 constexpr int ID_TRAY_STOP = 1010;
+constexpr int ID_TRAY_LANG_ZH = 1011;
+constexpr int ID_TRAY_LANG_EN = 1012;
+constexpr int MENU_UPDATE_TIMER_ID = 9999;
 constexpr int DEFAULT_PORT = 18789;
 constexpr const char* VERSION = "1.0.0";
 

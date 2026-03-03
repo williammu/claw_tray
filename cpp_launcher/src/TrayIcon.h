@@ -1,9 +1,8 @@
 #pragma once
 #include "Common.h"
+#include "I18N.h"
 
 namespace Launcher {
-
-constexpr int MENU_UPDATE_TIMER_ID = 9999;
 
 class TrayIcon {
 public:
@@ -27,7 +26,7 @@ public:
         nid_.uFlags = NIF_ICON | NIF_MESSAGE | NIF_TIP;
         nid_.uCallbackMessage = WM_TRAYICON;
         nid_.hIcon = hIcons_[0];
-        strcpy_s(nid_.szTip, "OpenClaw - Stopped");
+        strcpy_s(nid_.szTip, TR("tooltip_stopped").c_str());
         
         Shell_NotifyIcon(NIM_ADD, &nid_);
         
@@ -36,20 +35,20 @@ public:
 
     void SetState(State state) {
         int index = 0;
-        const char* tip = "OpenClaw - Stopped";
+        const char* tip = TR("tooltip_stopped").c_str();
         
         switch (state) {
             case State::STOPPED:
                 index = 0;
-                tip = "OpenClaw - 已停止";
+                tip = TR("tooltip_stopped").c_str();
                 break;
             case State::STARTING:
                 index = 1;
-                tip = "OpenClaw - 启动中...";
+                tip = TR("tooltip_starting").c_str();
                 break;
             case State::RUNNING:
                 index = 2;
-                tip = "OpenClaw - 运行中";
+                tip = TR("tooltip_running").c_str();
                 break;
         }
         
@@ -62,17 +61,31 @@ public:
         POINT pt;
         GetCursorPos(&pt);
         
+        menuTextShow_ = TR("menu_show");
+        menuTextStart_ = TR("menu_start");
+        menuTextStop_ = TR("menu_stop");
+        menuTextRestart_ = TR("menu_restart");
+        menuTextLanguage_ = TR("menu_language");
+        menuTextExit_ = TR("menu_exit");
+        
         hMenu_ = CreatePopupMenu();
         
-        AppendMenu(hMenu_, MF_STRING, ID_TRAY_SHOW, "显示/隐藏窗口");
+        AppendMenu(hMenu_, MF_STRING, ID_TRAY_SHOW, menuTextShow_.c_str());
         AppendMenu(hMenu_, MF_SEPARATOR, 0, NULL);
         
-        const char* startStopText = (currentState_ == State::RUNNING || currentState_ == State::STARTING) ? "停止" : "启动";
+        const char* startStopText = (currentState_ == State::RUNNING || currentState_ == State::STARTING) ? menuTextStop_.c_str() : menuTextStart_.c_str();
         AppendMenu(hMenu_, MF_STRING, ID_TRAY_START_STOP, startStopText);
         
-        AppendMenu(hMenu_, MF_STRING, ID_TRAY_RESTART, "重启");
+        AppendMenu(hMenu_, MF_STRING, ID_TRAY_RESTART, menuTextRestart_.c_str());
         AppendMenu(hMenu_, MF_SEPARATOR, 0, NULL);
-        AppendMenu(hMenu_, MF_STRING, ID_TRAY_EXIT, "退出");
+        
+        HMENU hLangMenu = CreatePopupMenu();
+        AppendMenu(hLangMenu, MF_STRING | (I18N::Instance().IsChinese() ? MF_CHECKED : 0), ID_TRAY_LANG_ZH, "中文");
+        AppendMenu(hLangMenu, MF_STRING | (!I18N::Instance().IsChinese() ? MF_CHECKED : 0), ID_TRAY_LANG_EN, "English");
+        AppendMenu(hMenu_, MF_POPUP, (UINT_PTR)hLangMenu, menuTextLanguage_.c_str());
+        
+        AppendMenu(hMenu_, MF_SEPARATOR, 0, NULL);
+        AppendMenu(hMenu_, MF_STRING, ID_TRAY_EXIT, menuTextExit_.c_str());
         
         UpdateMenuState();
         
@@ -80,6 +93,7 @@ public:
         SetTimer(hWnd, MENU_UPDATE_TIMER_ID, 200, NULL);
         TrackPopupMenu(hMenu_, TPM_BOTTOMALIGN | TPM_LEFTALIGN, pt.x, pt.y, 0, hWnd, NULL);
         KillTimer(hWnd, MENU_UPDATE_TIMER_ID);
+        DestroyMenu(hLangMenu);
         DestroyMenu(hMenu_);
         hMenu_ = NULL;
     }
@@ -108,15 +122,22 @@ private:
     HICON hIcons_[3] = {NULL, NULL, NULL};
     State currentState_ = State::STOPPED;
     HMENU hMenu_ = NULL;
-
-    HBRUSH hBlackBrush_ = NULL;
+    std::string menuTextShow_;
+    std::string menuTextStart_;
+    std::string menuTextStop_;
+    std::string menuTextRestart_;
+    std::string menuTextLanguage_;
+    std::string menuTextExit_;
+    std::string tooltipText_;
 
     TrayIcon() = default;
 
     void UpdateMenuState() {
         if (!hMenu_) return;
         
-        const char* startStopText = (currentState_ == State::RUNNING || currentState_ == State::STARTING) ? "停止" : "启动";
+        menuTextStart_ = TR("menu_start");
+        menuTextStop_ = TR("menu_stop");
+        const char* startStopText = (currentState_ == State::RUNNING || currentState_ == State::STARTING) ? menuTextStop_.c_str() : menuTextStart_.c_str();
         ModifyMenu(hMenu_, ID_TRAY_START_STOP, MF_STRING, ID_TRAY_START_STOP, startStopText);
         
         if (currentState_ == State::STOPPED) {

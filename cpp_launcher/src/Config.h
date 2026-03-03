@@ -23,6 +23,7 @@ public:
     std::string appearanceMode = "System";
     std::string windowHotkey = "ctrl+shift+o";
     bool windowsStartup = false;
+    std::string language = "";
 
     static Config& Instance() {
         static Config instance;
@@ -73,7 +74,8 @@ public:
         file << "    \"auto_minimize\": " << (autoMinimize ? "true" : "false") << ",\n";
         file << "    \"appearance_mode\": \"" << EscapeJson(appearanceMode) << "\",\n";
         file << "    \"window_hotkey\": \"" << EscapeJson(windowHotkey) << "\",\n";
-        file << "    \"windows_startup\": " << (windowsStartup ? "true" : "false") << "\n";
+        file << "    \"windows_startup\": " << (windowsStartup ? "true" : "false") << ",\n";
+        file << "    \"language\": \"" << EscapeJson(language) << "\"\n";
         file << "}\n";
 
         file.close();
@@ -202,6 +204,7 @@ private:
         windowHotkey = ExtractString(json, "window_hotkey");
         if (windowHotkey.empty()) windowHotkey = "ctrl+shift+o";
         windowsStartup = ExtractBool(json, "windows_startup", false);
+        language = ExtractString(json, "language");
     }
 };
 
